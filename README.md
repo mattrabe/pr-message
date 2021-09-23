@@ -31,7 +31,7 @@ To automatically run after every commit, add this package to your `post-commit` 
 Run `pr-message` and enter a target branch when prompted:
 
 ```
-$ pr-message
+$ yarn pr-message
 
 pr-message v1
 🤓 Which branch will you PR into (leave blank to skip)? develop
