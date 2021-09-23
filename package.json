@@ -1,0 +1,35 @@
+{
+  "name": "pr-message",
+  "version": "1.0.0",
+  "description": "Automatically generate beautiful PR messages",
+  "keywords": [
+    "git",
+    "PR",
+    "post-commit",
+    "pre-commit",
+    "husky"
+  ],
+  "author": "Matt Rabe",
+  "license": "MIT",
+  "main": "./src/index.js",
+  "bin": "./bin/pr-message",
+  "files": [
+    "src",
+    "bin"
+  ],
+  "scripts": {
+    "pr-message": "node ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattrabe/pr-message.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mattrabe/pr-message/issues"
+  },
+  "homepage": "https://github.com/mattrabe/pr-message#readme"
+}
