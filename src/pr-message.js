@@ -31,7 +31,7 @@ const main = async function () {
 
         // Better formatting for log
         const commits = log.match(/^#START-COMMIT# (.*)(?:(?!^#START-COMMIT#)[\s\S])*/gm)
-        const output = commits.reduce((acc, commit) => {
+        const output = commits?.reduce((acc, commit) => {
             const formattedCommit = commit.replace(/^#START-COMMIT# (.*)\n([\s\S]*)\n#END-COMMIT#/gm, '* $1\n$2')
             const lines = formattedCommit.match(/.*/gm)
 
@@ -41,6 +41,12 @@ const main = async function () {
 
             return acc
         }, '')
+
+        if (!output) {
+            console.log('\n✅ No commits, no message!')
+
+            process.exit(0)
+        }
 
         console.log('\n✅ Here is your PR message:\n')
         console.log(output)
