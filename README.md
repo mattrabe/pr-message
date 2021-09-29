@@ -4,6 +4,14 @@
 
 Automatically generate beautiful PR messages.
 
+### Compatibility:
+
+* ✅ bash
+* ✅ zsh
+* ✅ macOS Terminal
+* ✅ Windows Command Prompt
+* ✅ Windows PowerShell
+
 ## Installation:
 
 ```

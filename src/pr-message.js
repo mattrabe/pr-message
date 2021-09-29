@@ -4,35 +4,64 @@ const {
 } = require('child_process')
 const readline = require('readline-sync')
 
-const main = async function () {
-    const branchName = readline.question('🤓 Which branch will you PR into (leave blank to skip)? ')
+const { crossEnv: crossEnvString } = require('./strings')
 
-    if (!branchName) {
+const main = async function () {
+    console.info('')
+    const targetBranch = readline.question(crossEnvString('🤓 Which branch will your PR target (leave blank to skip)? '))
+    console.info('')
+
+    if (!targetBranch) {
         process.exit(0);
     }
 
-    const testCmd = `git show-branch ${branchName}`
+    let currentBranch
     try {
-        await execSync(testCmd)
-    } catch(e) {
-        console.log('🚫 Could not find branch.')
+        currentBranch = await execSync('git branch --show-current').toString().trim()
+    } catch(e) {}
+
+    if (!currentBranch) {
+        console.error(crossEnvString('🚫 Could not get current branch.'))
+
+        process.exit(1)
+    }
+    else if (currentBranch === targetBranch) {
+        console.error(crossEnvString('🚫 Target branch must be different than current branch.'))
 
         return main()
     }
 
-    const cmd = `git --no-pager log ${branchName}.. --no-merges --reverse --format=format:\\#START\\-COMMIT\\#\\ %B%n\\#END\\-COMMIT\\#%n`
+    try {
+        const syncCmds = {
+            [`Checking out ${targetBranch}`]: `git checkout ${targetBranch}`,
+            [`Pulling latest from ${targetBranch}`]: 'git pull',
+            [`Checking back out ${currentBranch}`]: `git checkout ${currentBranch}`,
+            [`Pulling latest from ${currentBranch}`]: 'git pull',
+        }
 
-    exec(cmd, (error, log) => {
+        for (const label in syncCmds) {
+            console.info(crossEnvString(`⏳ ${label}...`))
+
+            await execSync(syncCmds[label])
+        }
+    } catch(e) {
+        console.error(crossEnvString('🚫 Could not sync target branch.'))
+
+        return main()
+    }
+
+    const logCmd = `git --no-pager log ${targetBranch}.. --no-merges --reverse --format=format:#START-COMMIT#%B%n#END-COMMIT#%n`
+
+    exec(logCmd, (error, log) => {
         if (error) {
-            console.log('Error:', error.message)
+            console.error(crossEnvString(error.message))
 
             process.exit(1)
         }
 
-        // Better formatting for log
-        const commits = log.match(/^#START-COMMIT# (.*)(?:(?!^#START-COMMIT#)[\s\S])*/gm)
+        const commits = log.match(/^#START-COMMIT#(.*)(?:(?!^#START-COMMIT#)[\s\S])*/gm)
         const output = commits?.reduce((acc, commit) => {
-            const formattedCommit = commit.replace(/^#START-COMMIT# (.*)\n([\s\S]*)\n#END-COMMIT#/gm, '* $1\n$2')
+            const formattedCommit = commit.replace(/^#START-COMMIT#(.*)\n([\s\S]*)\n#END-COMMIT#/gm, '* $1\n$2')
             const lines = formattedCommit.match(/.*/gm)
 
             for (const i in lines) {
@@ -43,13 +72,13 @@ const main = async function () {
         }, '')
 
         if (!output) {
-            console.log('\n✅ No commits, no message!')
+            console.info(crossEnvString('\n✅ No commits, no message!'))
 
             process.exit(0)
         }
 
-        console.log('\n✅ Here is your PR message:\n')
-        console.log(output)
+        console.info(crossEnvString('\n✅ Here is your PR message:\n'))
+        console.info(output)
     })
 }
 
