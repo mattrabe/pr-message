@@ -2,8 +2,11 @@
 
 'use strict'
 
-const prMessage = require('../src/pr-message.js')
+const packageJson = require('../package.json')
 
-console.log('\npr-message v1')
+const prMessage = require('../src/pr-message.js')
+const { crossEnv: crossEnvString } = require('../src/strings')
+
+console.info(crossEnvString(`🔀 pr-message v${packageJson.version}`))
 
 prMessage()
